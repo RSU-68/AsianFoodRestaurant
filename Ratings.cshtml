@@ -1,0 +1,49 @@
+﻿@model List<Rating>
+@{
+    ViewData["Title"] = "Customer Reviews";
+}
+
+<div class="mb-4">
+    <p class="eyebrow">What customers say</p>
+    <h2 class="mb-1">Customer Reviews</h2>
+    @if (Model.Any())
+    {
+        <p class="text-muted">Average rating: <strong>@(((double)ViewBag.AverageRating).ToString("0.0"))</strong> / 5 across @Model.Count reviews</p>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <p>No reviews yet — be the first to order and rate!</p>
+}
+else
+{
+    <div class="row">
+        @foreach (var r in Model)
+        {
+            <div class="col-md-3 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                       @*  <div class="mb-1">@(new string('★', r.Stars))@(new string('☆', 5 - r.Stars))</div> *@
+                       @*  <p class="mb-1">@(string.IsNullOrWhiteSpace(r.Comment) ? "(No comment left)" : r.Comment)</p> *@
+                       
+                        <div class="mb-1">@(new string('⭐', r.Stars))@(new string('☆', 5 - r.Stars))</div>
+                        @if (r.Order?.OrderItems != null && r.Order.OrderItems.Any())
+                        {
+                            <p class="text-muted small mb-1">@string.Join(", ", r.Order.OrderItems.Select(i => $"{i.MenuItemName} x{i.Quantity}"))</p>
+                        }
+                        <p class="mb-1">@(string.IsNullOrWhiteSpace(r.Comment) ? "(No comment left)" : r.Comment)</p>
+                        @{
+                            var fullName = r.Customer?.FullName ?? "Anonymous";
+                            var nameParts = fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                            var displayName = nameParts.Length > 1
+                                ? $"{nameParts[0]} {nameParts[^1][0]}."
+                                : fullName;
+                        }
+                        <p class="text-muted small mb-0">— @displayName, @r.CreatedDate.ToString("dd MMM yyyy")</p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

@@ -1,0 +1,24 @@
+@model Order
+@{ ViewData["Title"] = "Order Details"; }
+
+<h2>Order #@Model.Id</h2>
+<p>Status: <strong>@Model.Status</strong></p>
+<p>Delivery Address: @Model.DeliveryAddress</p>
+
+<table class="table bg-white">
+    <thead><tr><th>Item</th><th>Unit Price</th><th>Qty</th><th>Total</th></tr></thead>
+    <tbody>
+        @foreach (var item in Model.OrderItems)
+        {
+            <tr>
+                <td>@item.MenuItemName</td>
+                <td>৳@item.UnitPrice.ToString("0.00")</td>
+                <td>@item.Quantity</td>
+                <td>৳@item.LineTotal.ToString("0.00")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+<h4>Grand Total: ৳@Model.TotalAmount.ToString("0.00")</h4>
+
+<a asp-action="MyOrders" class="btn btn-secondary">Back to My Orders</a>

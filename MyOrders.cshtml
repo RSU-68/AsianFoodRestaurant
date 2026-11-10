@@ -1,0 +1,42 @@
+@model List<Order>
+@{ ViewData["Title"] = "My Orders"; }
+
+<h2>My Claimed Orders</h2>
+
+@if (!Model.Any())
+{
+    <p>You haven't claimed any orders yet.</p>
+}
+else
+{
+    <table class="table bg-white align-middle">
+        <thead><tr><th>#</th><th>Customer</th><th>Items</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+            @foreach (var order in Model)
+            {
+                <tr>
+                    <td>@order.Id</td>
+                    <td>@order.Customer?.FullName</td>
+                    <td>@string.Join(", ", order.OrderItems.Select(i => $"{i.MenuItemName} x{i.Quantity}"))</td>
+                    <td><span class="badge bg-warning text-dark">@order.Status</span></td>
+                    <td class="d-flex gap-1">
+                        @if (order.Status == OrderStatus.Accepted)
+                        {
+                            <form asp-action="MarkPreparing" method="post">
+                                <input type="hidden" name="id" value="@order.Id" />
+                                <button class="btn btn-sm btn-info" type="submit">Mark as Preparing</button>
+                            </form>
+                        }
+                        @if (order.Status == OrderStatus.Preparing)
+                        {
+                            <form asp-action="MarkCompleted" method="post">
+                                <input type="hidden" name="id" value="@order.Id" />
+                                <button class="btn btn-sm btn-success" type="submit">Mark as Completed</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

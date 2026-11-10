@@ -1,0 +1,61 @@
+@model Order
+@{
+    ViewData["Title"] = "Invoice";
+}
+
+<div class="card p-4 bg-white">
+    <h2>Invoice</h2>
+    <p><strong>Invoice #:</strong> @Model.Payment?.InvoiceNumber</p>
+    <p><strong>Order #:</strong> @Model.Id</p>
+    <p><strong>Customer:</strong> @Model.Customer?.FullName (@Model.Customer?.Email)</p>
+    <p><strong>Date:</strong> @Model.OrderDate.ToString("dd MMM yyyy, hh:mm tt")</p>
+    <p><strong>Delivery Address:</strong> @Model.DeliveryAddress</p>
+    <p>
+        <strong>Payment Method:</strong> @Model.Payment?.Method
+        &nbsp; <span class="badge bg-success">@Model.Payment?.Status</span>
+    </p>
+    @if (!string.IsNullOrEmpty(Model.Payment?.TransactionId))
+    {
+        <p><strong>Transaction ID:</strong> @Model.Payment.TransactionId</p>
+    }
+
+    <table class="table mt-3">
+        <thead><tr><th>Item</th><th>Unit Price</th><th>Qty</th><th>Total</th></tr></thead>
+        <tbody>
+            @foreach (var item in Model.OrderItems)
+            {
+                <tr>
+                    <td>@item.MenuItemName</td>
+                    <td>৳@item.UnitPrice.ToString("0.00")</td>
+                    <td>@item.Quantity</td>
+                    <td>৳@item.LineTotal.ToString("0.00")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <h4 class="text-end">Grand Total:৳ @Model.TotalAmount.ToString("0.00")</h4>
+
+    @if (Model.Payment?.Status == PaymentStatus.Refunded)
+    {
+        <div class="alert alert-light border mt-3">
+            <h5 class="mb-2">Refund Summary</h5>
+            @if (Model.Payment.RefundedAmount.HasValue && Model.Payment.RefundedAmount.Value < Model.TotalAmount)
+            {
+                var fee = Model.TotalAmount - Model.Payment.RefundedAmount.Value;
+                <p class="mb-1">Order cancelled after acceptance — 20% cancellation policy applied.</p>
+                <p class="mb-1">Amount Refunded: <strong>৳@Model.Payment.RefundedAmount.Value.ToString("0.00")</strong></p>
+                <p class="mb-1">Cancellation Fee Retained (80%): <strong>@fee.ToString("0.00")</strong></p>
+            }
+            else
+            {
+                <p class="mb-1">Amount Refunded: <strong>৳@((Model.Payment.RefundedAmount ?? Model.TotalAmount).ToString("0.00"))</strong> (full refund)</p>
+            }
+            @if (!string.IsNullOrEmpty(Model.Payment.RefundReferenceId))
+            {
+                <p class="mb-0 text-muted small">SSLCommerz Refund Reference: @Model.Payment.RefundReferenceId</p>
+            }
+        </div>
+    }
+
+    <button class="btn btn-outline-secondary mt-3" onclick="window.print()">Print Invoice</button>
+</div>

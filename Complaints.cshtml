@@ -1,0 +1,53 @@
+﻿@model List<Complaint>
+@{
+    ViewData["Title"] = "My Complaints";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>My Complaints</h2>
+    <a asp-action="FileComplaint" class="btn btn-danger">+ Report an Issue</a>
+</div>
+
+@if (!Model.Any())
+{
+    <p>You haven't reported any issues. Good sign!</p>
+}
+else
+{
+    @foreach (var c in Model)
+    {
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <h5 class="card-title">@c.Subject</h5>
+                    @{
+                        var badgeClass = c.Status switch
+                        {
+                            ComplaintStatus.Open => "bg-secondary",
+                            ComplaintStatus.InProgress => "bg-warning text-dark",
+                            ComplaintStatus.Resolved => "bg-success",
+                            _ => "bg-secondary"
+                        };
+                    }
+                    <span class="badge @badgeClass">@c.Status</span>
+                </div>
+                <p class="text-muted small mb-1">
+                    Filed @c.CreatedDate.ToString("dd MMM yyyy, hh:mm tt")
+                    @if (c.OrderId != null)
+                    {
+                        <span> — regarding Order #@c.OrderId</span>
+                    }
+                </p>
+                <p>@c.Message</p>
+
+                @if (!string.IsNullOrEmpty(c.AdminResponse))
+                {
+                    <div class="alert alert-light border mt-2 mb-0">
+                        <strong>Restaurant response:</strong>
+                        <p class="mb-0">@c.AdminResponse</p>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+}

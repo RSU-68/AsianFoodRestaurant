@@ -1,0 +1,63 @@
+@model List<Order>
+@{
+    ViewData["Title"] = "Orders";
+}
+
+<h2>All Orders</h2>
+<table class="table bg-white align-middle">
+    <thead>
+        <tr><th>#</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Payment</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model)
+        {
+            <tr>
+                <td>@order.Id</td>
+                <td>@order.Customer?.FullName<br /><small class="text-muted">@order.Customer?.Email</small></td>
+                <td>@string.Join(", ", order.OrderItems.Select(i => $"{i.MenuItemName} x{i.Quantity}"))</td>
+                <td>৳@order.TotalAmount.ToString("0.00")</td>
+                <td>
+                    @{
+                        var orderBadgeClass = order.Status switch
+                        {
+                            OrderStatus.Pending => "bg-secondary",
+                            OrderStatus.Accepted => "bg-info text-dark",
+                            OrderStatus.Declined => "bg-danger",
+                            OrderStatus.Preparing => "bg-warning text-dark",
+                            OrderStatus.Delivered => "bg-success",
+                            OrderStatus.Cancelled => "bg-dark",
+                            _ => "bg-secondary"
+                        };
+                    }
+                    <span class="badge @orderBadgeClass">@order.Status</span>
+                </td>
+                <td>@order.Payment?.Method (@order.Payment?.Status)</td>
+                <td class="d-flex gap-1 flex-wrap">
+                    @if (order.Status == OrderStatus.Pending)
+                    {
+                        <form asp-action="AcceptOrder" method="post">
+                            <input type="hidden" name="id" value="@order.Id" />
+                            <button class="btn btn-sm btn-success" type="submit">Accept</button>
+                        </form>
+                        <form asp-action="DeclineOrder" method="post">
+                            <input type="hidden" name="id" value="@order.Id" />
+                            <button class="btn btn-sm btn-warning" type="submit">Decline</button>
+                        </form>
+                    }
+                    @if (order.Payment != null && order.Payment.Method == PaymentMethodType.COD && order.Payment.Status != PaymentStatus.Paid)
+                    {
+                        <form asp-action="MarkCodPaid" method="post">
+                            <input type="hidden" name="orderId" value="@order.Id" />
+                            <button class="btn btn-sm btn-outline-success" type="submit">Mark Paid (Cash Collected)</button>
+                        </form>
+                    }
+                    <form asp-action="DeleteOrder" method="post" onsubmit="return confirm('Delete this order?');">
+                        <input type="hidden" name="id" value="@order.Id" />
+                        <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                    </form>
+                   
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

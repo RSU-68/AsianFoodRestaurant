@@ -1,0 +1,37 @@
+@model CreateEmployeeViewModel
+@{ ViewData["Title"] = "Add Employee"; }
+
+<h2>Add Employee</h2>
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="CreateEmployee" method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="mb-3">
+                <label class="form-label">Full Name</label>
+                <input asp-for="FullName" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input asp-for="Email" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Phone</label>
+                <input asp-for="Phone" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input asp-for="Password" class="form-control" type="password" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Role</label>
+                <select asp-for="EmployeeRole" class="form-select">
+                    <option value="@EmployeeRole.Waiter">Waiter</option>
+                    <option value="@EmployeeRole.Chef">Chef</option>
+                    <option value="@EmployeeRole.Cashier">Cashier</option>
+                   
+                </select>
+            </div>
+            <button type="submit" class="btn btn-danger">Create Employee</button>
+        </form>
+    </div>
+</div>

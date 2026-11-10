@@ -1,0 +1,48 @@
+﻿@model RespondComplaintViewModel
+@{
+    ViewData["Title"] = "Respond to Complaint";
+    var complaint = (Complaint)ViewBag.Complaint;
+}
+
+<h2>Complaint #@complaint.Id</h2>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h5>@complaint.Subject</h5>
+        <p class="text-muted small mb-1">
+            From @complaint.Customer?.FullName (@complaint.Customer?.Email)
+            @if (complaint.OrderId != null)
+            {
+                <span> — regarding Order #@complaint.OrderId</span>
+            }
+            — filed @complaint.CreatedDate.ToString("dd MMM yyyy, hh:mm tt")
+        </p>
+        <p>@complaint.Message</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="RespondComplaint" method="post">
+            <input type="hidden" asp-for="Id" />
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label class="form-label">Your Response</label>
+                <textarea asp-for="AdminResponse" class="form-control" rows="4" placeholder="Explain how this was resolved, or what's being done..."></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Status</label>
+                <select asp-for="Status" class="form-select">
+                    <option value="@ComplaintStatus.Open">Open</option>
+                    <option value="@ComplaintStatus.InProgress">In Progress</option>
+                    <option value="@ComplaintStatus.Resolved">Resolved</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-danger">Send Response</button>
+            <a asp-action="Complaints" class="btn btn-link">Back to Complaints</a>
+        </form>
+    </div>
+</div>

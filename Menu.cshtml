@@ -1,0 +1,72 @@
+﻿@model List<MenuItem>
+@{
+    ViewData["Title"] = "Menu";
+}
+
+<div class="menu-header mb-4">
+    <p class="eyebrow">The full spread</p>
+    <h2 class="mb-1">Our Menu</h2>
+    <p class="text-muted">Every dish, made to order, delivered hot.</p>
+</div>
+
+<form asp-controller="Home" asp-action="Menu" method="get" class="mb-4">
+    <div class="input-group" style="max-width:450px;">
+        <input type="text" name="search" value="@ViewBag.SearchTerm" class="form-control"
+               placeholder="Search by name, category, or ingredient..." />
+        <button type="submit" class="btn btn-danger">Search</button>
+        @if (!string.IsNullOrEmpty(ViewBag.SearchTerm))
+        {
+            <a asp-controller="Home" asp-action="Menu" class="btn btn-outline-secondary">Clear</a>
+        }
+
+       
+    </div>
+</form>
+
+@if (!string.IsNullOrEmpty(ViewBag.SearchTerm) && !Model.Any())
+{
+    <div class="alert alert-warning">No menu items match "<strong>@ViewBag.SearchTerm</strong>". Try a different search term.</div>
+}
+
+@* ---------Row------- *@
+
+<div class="row">
+    @foreach (var item in Model)
+    {
+        <div class="col-md-3 mb-3">
+            <div class="card food-card h-100">
+                <img src="@(string.IsNullOrEmpty(item.ImagePath) ? "https://via.placeholder.com/400x250?text=No+Image" : item.ImagePath)" class="card-img-top" alt="@item.Name" />
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">@item.Name</h5>
+                    <p class="text-muted small">@item.Category</p>
+                    <p class="card-text flex-grow-1">@item.Description</p>
+                    <p class="fw-bold">৳@item.Price.ToString("0.00")</p>
+
+                    @if (item.StockQuantity == 0)
+                    {
+                        <span class="badge bg-danger mb-2">Stock Out</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success mb-2">In stock: @item.StockQuantity</span>
+                    }
+
+                    @if (User.IsInRole("Customer"))
+                    {
+                        <form asp-controller="Customer" asp-action="AddToCart" method="post" class="d-flex gap-2">
+                            <input type="hidden" name="menuItemId" value="@item.Id" />
+                            <input type="number" name="quantity" value="1" min="1" class="form-control" style="width:80px" />
+                            <button type="submit" class="btn btn-danger" @(item.StockQuantity == 0 ? "disabled" : "")>Add to Cart</button>
+                            
+                           
+                        </form>
+                    }
+                    else if (!User.Identity!.IsAuthenticated)
+                    {
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-outline-danger">Login to order</a>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>

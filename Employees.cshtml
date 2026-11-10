@@ -1,0 +1,38 @@
+@model List<ApplicationUser>
+@{ ViewData["Title"] = "Employees"; }
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Employees</h2>
+    <a asp-action="CreateEmployee" class="btn btn-danger">+ Add Employee</a>
+</div>
+
+<table class="table bg-white align-middle">
+    <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Change Role</th><th></th></tr></thead>
+    <tbody>
+        @foreach (var emp in Model)
+        {
+            <tr>
+                <td>@emp.FullName</td>
+                <td>@emp.Email</td>
+                <td><span class="badge bg-info text-dark">@emp.EmployeeRole</span></td>
+                <td>
+                    <form asp-action="ChangeEmployeeRole" method="post" class="d-flex gap-2">
+                        <input type="hidden" name="id" value="@emp.Id" />
+                        <select name="newRole" class="form-select form-select-sm">
+                            <option value="@EmployeeRole.Waiter">Waiter</option>
+                            <option value="@EmployeeRole.Chef">Chef</option>
+                            <option value="@EmployeeRole.Cashier">Cashier</option>
+                        </select>
+                        <button class="btn btn-sm btn-outline-secondary" type="submit">Update</button>
+                    </form>
+                </td>
+                <td>
+                    <form asp-action="DeleteEmployee" method="post" onsubmit="return confirm('Remove this employee?');">
+                        <input type="hidden" name="id" value="@emp.Id" />
+                        <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,73 @@
+@model List<CartItem>
+@{ ViewData["Title"] = "Cart"; }
+
+<h2>Your Cart</h2>
+<div id="cartMessage" class="alert alert-info d-none"></div>
+
+@if (!Model.Any())
+{
+    <p>Your cart is empty. <a asp-controller="Home" asp-action="Index">Browse the menu</a>.</p>
+}
+else
+{
+    <table class="table align-middle bg-white" id="cartTable">
+        <thead>
+            <tr><th>Item</th><th>Price</th><th>Quantity</th><th>Total</th><th></th></tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr data-id="@item.MenuItemId">
+                    <td>@item.Name</td>
+                    <td>৳@item.Price.ToString("0.00")</td>
+                  
+                    <td>
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-outline-secondary btn-sm qty-btn" data-delta="-1">-</button>
+                            <span class="btn btn-light btn-sm disabled qty-value">@item.Quantity</span>
+                            <button class="btn btn-outline-secondary btn-sm qty-btn" data-delta="1">+</button>
+                        </div>
+                    </td>
+                    <td class="line-total">৳@item.LineTotal.ToString("0.00")</td>
+                    <td>
+                        <form asp-action="RemoveFromCart" method="post">
+                            <input type="hidden" name="menuItemId" value="@item.MenuItemId" />
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h4>Total: ৳<span id="cartTotal">@ViewBag.Total.ToString("0.00")</span></h4>
+    <a asp-action="Checkout" class="btn btn-danger">Proceed to Checkout</a>
+}
+
+@section Scripts {
+<script>
+document.querySelectorAll('.qty-btn').forEach(btn => {
+    btn.addEventListener('click', async function () {
+        const row = this.closest('tr');
+        const menuItemId = row.dataset.id;
+        const delta = this.dataset.delta;
+
+        const res = await fetch('@Url.Action("ChangeQuantity")', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `menuItemId=${menuItemId}&delta=${delta}`
+        });
+        const data = await res.json();
+
+        const msgBox = document.getElementById('cartMessage');
+        msgBox.classList.remove('d-none', 'alert-info', 'alert-danger', 'alert-success');
+        msgBox.classList.add(data.success ? 'alert-success' : 'alert-danger');
+        msgBox.textContent = data.message;
+
+        if (data.success) {
+            location.reload(); // simplest way to keep totals/rows in sync
+        }
+    });
+});
+</script>
+}

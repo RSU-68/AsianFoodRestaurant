@@ -1,0 +1,34 @@
+@model List<ApplicationUser>
+@{ ViewData["Title"] = "Customers"; }
+
+<h2>Customers</h2>
+<table class="table bg-white align-middle">
+    <thead><tr><th>Name</th><th>Email</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+        @foreach (var c in Model)
+        {
+            <tr>
+                <td>@c.FullName</td>
+                <td>@c.Email</td>
+                <td>
+                    @if (c.IsActive)
+                    {
+                        <span class="badge bg-success">Active</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Deactivated</span>
+                    }
+                </td>
+                <td>
+                    <form asp-action="ToggleCustomerStatus" method="post">
+                        <input type="hidden" name="id" value="@c.Id" />
+                        <button class="btn btn-sm @(c.IsActive ? "btn-outline-danger" : "btn-outline-success")" type="submit">
+                            @(c.IsActive ? "Deactivate" : "Activate")
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

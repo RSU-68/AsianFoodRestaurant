@@ -1,0 +1,39 @@
+﻿@model FileComplaintViewModel
+@{
+    ViewData["Title"] = "Report an Issue";
+}
+
+<h2>Report an Issue</h2>
+<p class="text-muted">Tell us what went wrong and our team will follow up.</p>
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="FileComplaint" method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label class="form-label">Related Order (optional)</label>
+                <select asp-for="OrderId" class="form-select">
+                    <option value="">-- General complaint, not order-specific --</option>
+                    @foreach (var order in (List<Order>)ViewBag.Orders)
+                    {
+                        <option value="@order.Id">Order #@order.Id — @order.OrderDate.ToString("dd MMM yyyy") (৳@order.TotalAmount.ToString("0.00"))</option>
+                    }
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Subject</label>
+                <input asp-for="Subject" class="form-control" placeholder="e.g. Missing item, late delivery, wrong order..." />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Details</label>
+                <textarea asp-for="Message" class="form-control" rows="5" placeholder="Describe what happened..."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-danger">Submit Complaint</button>
+            <a asp-action="Complaints" class="btn btn-link">View My Complaints</a>
+        </form>
+    </div>
+</div>

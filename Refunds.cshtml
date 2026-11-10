@@ -1,0 +1,78 @@
+﻿@model List<RefundRequest>
+@{
+    ViewData["Title"] = "Refund  Requests";
+}
+
+<h2>Refund Requests</h2>
+@if (!Model.Any())
+{
+    <p>No refund requests yet.</p>
+}
+else
+{
+    @foreach (var r in Model)
+    {
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <h5 class="card-title">Order #@r.OrderId — @r.Customer?.FullName</h5>
+                    @{
+                        var badgeClass = r.Status switch
+                        {
+                            RefundStatus.Pending => "bg-secondary",
+                            RefundStatus.Approved => "bg-success",
+                            RefundStatus.Rejected => "bg-danger",
+                            _ => "bg-secondary"
+                        };
+                    }
+                    <span class="badge @badgeClass">@r.Status</span>
+                </div>
+                <p class="text-muted small mb-1">
+                    Requested @r.RequestedDate.ToString("dd MMM yyyy, hh:mm tt")
+                    — Order total ৳@(r.Order?.TotalAmount.ToString("0.00") ?? "-")
+                    — Payment: @r.Order?.Payment?.Method (@r.Order?.Payment?.Status)
+                    @if (!string.IsNullOrEmpty(r.Order?.Payment?.RefundReferenceId))
+                    {
+                        <span> — SSLCommerz ref: @r.Order.Payment.RefundReferenceId</span>
+                    }
+                </p>
+
+                @if (r.RequestedRefundAmount > 0)
+                {
+                    <p class="mb-1"><strong>Amount to refund if approved: ৳@r.RequestedRefundAmount.ToString("0.00")</strong></p>
+                }
+
+                <p><strong>Reason:</strong> @r.Reason</p>
+
+                @if (!string.IsNullOrEmpty(r.AdminNote))
+                {
+                    <div class="alert alert-light border mb-2">
+                        <strong>Admin note:</strong> @r.AdminNote
+                    </div>
+                }
+
+                @if (r.Status == RefundStatus.Pending)
+                {
+                    <form asp-action="ApproveRefund" method="post" class="d-flex gap-2 mt-2 align-items-center flex-wrap">
+                        <input type="hidden" name="id" value="@r.Id" />
+                        <input type="text" name="adminNote" class="form-control form-control-sm" style="max-width:280px" placeholder="Optional note" />
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" name="manualRefund" value="true" id="manual_@r.Id" />
+                            <label class="form-check-label small" for="manual_@r.Id">Process manually (skip SSLCommerz)</label>
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-success text-nowrap">Approve &amp; Refund</button>
+                    </form>
+                    <form asp-action="RejectRefund" method="post" class="d-flex gap-2 mt-2">
+                        <input type="hidden" name="id" value="@r.Id" />
+                        <input type="text" name="adminNote" class="form-control form-control-sm" placeholder="Optional reason for rejection" />
+                        <button type="submit" class="btn btn-sm btn-outline-danger text-nowrap">Reject</button>
+                    </form>
+                }
+                <form asp-action="DeleteRefundRequest" method="post" class="mt-2" onsubmit="return confirm('Delete this refund request record? This does NOT reverse any refund already processed.');">
+                    <input type="hidden" name="id" value="@r.Id" />
+                    <button type="submit" class="btn btn-sm btn-outline-secondary">Delete</button>
+                </form>
+            </div>
+        </div>
+    }
+}

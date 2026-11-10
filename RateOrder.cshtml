@@ -1,0 +1,59 @@
+﻿@model RateOrderViewModel
+@{
+    ViewData["Title"] = "Rate Your Order";
+}
+
+<h2>Rate Order #@Model.OrderId</h2>
+<p class="text-muted">How was your food? Your feedback helps the kitchen improve.</p>
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="RateOrder" method="post">
+            <input type="hidden" asp-for="OrderId" />
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label class="form-label d-block">Your Rating</label>
+                <div class="star-rating" style="font-size:2rem;">
+                
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        <label style="cursor:pointer;">
+                            <input type="radio" asp-for="Stars" value="@i" style="display:none;" class="star-input" />
+                            <span class="star" data-value="@i">☆</span>
+                             
+                        </label>
+                    }
+                </div>
+            </div>
+
+             <div class="mb-3">
+                <label class="form-label">Comment (optional)</label>
+                <textarea asp-for="Comment" class="form-control" rows="3" placeholder="Tell us what you thought..."></textarea>
+            </div> 
+
+            <button type="submit" class="btn btn-danger">Submit Rating</button>
+            <a asp-action="MyOrders" class="btn btn-gold">Cancel</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const stars = document.querySelectorAll('.star');
+        const inputs = document.querySelectorAll('.star-input');
+
+        function paint(selectedValue) {
+            stars.forEach(s => {
+                s.textContent = (parseInt(s.dataset.value) <= selectedValue) ? '⭐' : '☆';
+            });
+        }
+
+        stars.forEach((star, idx) => {
+            star.addEventListener('click', () => {
+                inputs[idx].checked = true;
+                paint(parseInt(star.dataset.value));
+            });
+        });
+    </script>
+}

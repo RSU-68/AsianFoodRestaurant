@@ -1,0 +1,44 @@
+@model CheckoutViewModel
+@{ ViewData["Title"] = "Checkout"; }
+
+<h2>Checkout</h2>
+
+<div class="row">
+    <div class="col-md-7">
+        <table class="table bg-white">
+            <thead><tr><th>Item</th><th>Qty</th><th>Total</th></tr></thead>
+            <tbody>
+                @foreach (var item in Model.Items)
+                {
+                    <tr><td>@item.Name</td><td>@item.Quantity</td><td>৳@item.LineTotal.ToString("0.00")</td></tr>
+                }
+            </tbody>
+        </table>
+        <h4>Grand Total:৳ @Model.Total.ToString("0.00")</h4>
+    </div>
+
+    <div class="col-md-5">
+        <form asp-action="Checkout" method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label class="form-label">Delivery Address</label>
+                <textarea asp-for="DeliveryAddress" class="form-control" rows="3"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Payment Method</label>
+                <select asp-for="PaymentMethod" class="form-select">
+                    <option value="@PaymentMethodType.Bank">Bank</option>
+                    <option value="@PaymentMethodType.Card">Card</option>
+                    <option value="@PaymentMethodType.COD">Cash on Delivery (COD)</option>
+                    <option value="@PaymentMethodType.Bkash">Bkash</option>
+                    <option value="@PaymentMethodType.Nagad">Nagad</option>
+                </select>
+                <small class="text-muted">Bank / Card / Bkash / Nagad are processed via SSLCommerz Sandbox.</small>
+            </div>
+
+            <button type="submit" class="btn btn-danger">Confirm Payment</button>
+        </form>
+    </div>
+</div>
